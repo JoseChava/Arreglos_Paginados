@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Arreglos_Paginados/Arreglos_Paginados.vcxproj" Id="fb2a53c9-7769-4bf5-9e80-e0aa56e23766" />
+</Solution>
