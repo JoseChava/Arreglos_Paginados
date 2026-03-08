@@ -1,9 +1,24 @@
 ﻿#include <iostream>
 #include <cmath>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
+//Generador de archivos binarios con numeros aleatorios
+void GenerarArchivo(string Path, long long PesoBytes) {
+	fstream archivo(Path, ios::out | ios::binary);
+	if (!archivo.is_open()) {
+		cout << "Error al abrir archivo";
+	}
+	srand(time(0)); //Crea una semilla para generar numeros aleatorios
+	for (long long i = 0; i < PesoBytes / sizeof(int); i++) {
+		int numero = rand();
+		archivo.write((char*)&numero, sizeof(int)); //Funcion de escritura de los numeros
+	}
+	archivo.close();
+}
+//Validacion de parametros de entrada de linea de comandos
 int main(int argc,char* argv[]) {
 	if (argc < 5) {
 		cout << "Cantidad de parametros incorrectos";
@@ -37,6 +52,11 @@ int main(int argc,char* argv[]) {
 		cout << "Tamanho invalido";
 		return 1;
 	}
+	GenerarArchivo(Path, PesoBytes);
 	return 0;
 }
+
+
+
+
 
