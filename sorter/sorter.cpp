@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include "PagedArray.hpp"
 
 using namespace std;
 
@@ -61,5 +62,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	CopiarArchivo(PathOriginal, PathSalida);
+	PagedArray PagedArray(PathSalida, TamanhoPagina, PaginasEnRam);
+
 	return 0;
 }

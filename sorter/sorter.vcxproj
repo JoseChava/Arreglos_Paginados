@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="PagedArray.cpp" />
     <ClCompile Include="sorter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PagedArray.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
