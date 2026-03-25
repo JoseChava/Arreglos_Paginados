@@ -8,6 +8,7 @@ using namespace std;
 struct Pagina {
 	int* informacion;
 	int numeroPagina;
+	int contador;
 	bool modificado;
 };
 
@@ -20,6 +21,7 @@ class PagedArray {
 		int paginasEnRam;
 		int pageHits;
 		int pageFaults;
+		int reloj;
 public:
 	PagedArray(string pathArchivo, int tamanhoPagina, int paginasEnRam); //constructor para inicializar el arreglo paginado
 	~PagedArray(); //destructor para liberar la memoria del arreglo paginado
@@ -29,4 +31,6 @@ public:
 	//Funciones basicas para PageHits y PageFaults
 	int obtenerPageHits() const;
 	int obtenerPageFaults() const;
+	
+	void cargarPagina(int numeroPagina);
 };

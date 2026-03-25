@@ -1,0 +1,14 @@
+//Generador de archivos binarios con numeros aleatorios
+void GenerarArchivo(string Path, long long PesoBytes) {
+	FILE* Archivo = fopen(Path.c_str(), "wb");
+	if (Archivo == NULL) {
+		cout << "Error al crear el archivo";
+		return;
+	}
+	long long CantidadNumeros = PesoBytes / sizeof(int);
+	for (long long i = 0; i < CantidadNumeros; i++) {
+		int NumeroAleatorio = rand();
+		fwrite(&NumeroAleatorio, sizeof(int), 1, Archivo);
+	}
+	fclose(Archivo);
+}
