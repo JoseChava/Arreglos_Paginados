@@ -32,5 +32,6 @@ public:
 	int obtenerPageHits() const;
 	int obtenerPageFaults() const;
 	
+	long long tamanhoArchivo();
 	void cargarPagina(int numeroPagina);
 };

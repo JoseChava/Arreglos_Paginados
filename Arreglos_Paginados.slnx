@@ -3,6 +3,6 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Arreglos_Paginados/Arreglos_Paginados.vcxproj" Id="fb2a53c9-7769-4bf5-9e80-e0aa56e23766" />
+  <Project Path="Generator/Generator.vcxproj" Id="fb2a53c9-7769-4bf5-9e80-e0aa56e23766" DisplayName="generator" />
   <Project Path="sorter/sorter.vcxproj" Id="f169dd20-8c20-44f1-9580-f05ea60ccc32" />
 </Solution>

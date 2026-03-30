@@ -40,6 +40,15 @@ PagedArray::PagedArray(string pathArchivo, int tamanhoPagina, int paginasEnRam) 
 	int PagedArray::obtenerPageFaults() const {
 		return pageFaults;
 	}
+	//Funcion para calcular el tamanho total en int que tiene el archivo ordenar, luego esto se pasa a los algoritmos de ordenamiento
+	long long PagedArray::tamanhoArchivo() {
+		//se posiciona el puntero en el final del archivo
+		archivo.seekg(0, ios::end);
+		//Se obtiene la posicion actual desde el inicio, que es igual que la cantidad de Bytes
+		long long tamanho = archivo.tellg();
+		//Se transforma el tamanho en bytes a ints
+		return tamanho / sizeof(int);
+	}
 	//Sobrecarga del operador [] para poder psarlo como parametro a los algoritmo de ordenamiento y buscar valores como en un array normal
 	int& PagedArray::operator[](int indice) {
 		int numeroPagina = indice / tamanhoPagina;
@@ -49,6 +58,7 @@ PagedArray::PagedArray(string pathArchivo, int tamanhoPagina, int paginasEnRam) 
 			if (paginas[i].numeroPagina == numeroPagina) {
 				pageHits++;
 				paginas[i].contador = reloj;
+				paginas[i].modificado = true;
 				reloj++;
 				return paginas[i].informacion[desfase];
 			}
@@ -59,6 +69,9 @@ PagedArray::PagedArray(string pathArchivo, int tamanhoPagina, int paginasEnRam) 
 			//Una vez cargada la pagina se vuelve a recorrer y se retorna el dato especifico pedido de la pagina
 			for (int i = 0; i < paginasEnRam; i++) {
 				if (paginas[i].numeroPagina == numeroPagina) {
+					paginas[i].contador = reloj; 
+					paginas[i].modificado = true;
+					reloj++;
 					return paginas[i].informacion[desfase];
 				}
 			}
