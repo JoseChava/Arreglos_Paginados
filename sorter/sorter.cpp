@@ -255,8 +255,8 @@ int main(int argc, char* argv[]) {
 	}
 	CopiarArchivo(PathOriginal, PathSalida);
 
-	int PageHits = 0;
-	int PageFaults = 0;
+	long long PageHits = 0;
+	long  long PageFaults = 0;
 	chrono::duration<double> duracion; 
 	chrono::steady_clock::time_point inicio, fin;
 
@@ -310,7 +310,7 @@ int main(int argc, char* argv[]) {
 	cout << "Page Hits:    " << PageHits << endl;
 	cout << "Page Faults:  " << PageFaults << endl;
 
-	GenerarArchivoLegible(PathSalida, PathSalida);
+	GenerarArchivoLegible(PathSalida, PathSalida+".txt");
 
 	return 0;
 }

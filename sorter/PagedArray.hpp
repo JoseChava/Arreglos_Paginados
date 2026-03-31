@@ -19,9 +19,13 @@ class PagedArray {
 		Pagina* paginas;
 		int tamanhoPagina;
 		int paginasEnRam;
-		int pageHits;
-		int pageFaults;
+		long long pageHits;
+		long long pageFaults;
 		int reloj;
+		//Variable para guardar el espacio en RAM donde se encuentra una pagina(guarda -1 si esta en disco)
+		int* tablaIndices;
+		//Cantidad de paginas en todo el PagedArray
+		int cantidadPaginas;
 public:
 	PagedArray(string pathArchivo, int tamanhoPagina, int paginasEnRam); //constructor para inicializar el arreglo paginado
 	~PagedArray(); //destructor para liberar la memoria del arreglo paginado
@@ -29,8 +33,8 @@ public:
 	int& operator[](int index); //Sobrecarga del operador []
 
 	//Funciones basicas para PageHits y PageFaults
-	int obtenerPageHits() const;
-	int obtenerPageFaults() const;
+	long long obtenerPageHits() const;
+	long long obtenerPageFaults() const;
 	
 	long long tamanhoArchivo();
 	void cargarPagina(int numeroPagina);
