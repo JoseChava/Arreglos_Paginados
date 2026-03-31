@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 
+
 using namespace std;
 
 //Generador de archivos binarios con numeros aleatorios
@@ -40,13 +41,13 @@ int main(int argc,char* argv[]) {
 		return 1;
 	}
 	if (Tamanho== "SMALL") {
-		PesoBytes= 512LL*pow(1024,2);
+		PesoBytes= 256LL*pow(1024,2);
 	}
 	else if (Tamanho=="MEDIUM") {
-		PesoBytes= 1LL *pow(1024, 3);
+		PesoBytes= 512LL *pow(1024, 2);
 	}
 	else if(Tamanho=="LARGE") {
-		PesoBytes= 2LL*pow(1024, 3);
+		PesoBytes= 1LL*pow(1024, 3);
 	}
 	else {
 		cout << "Tamanho invalido";

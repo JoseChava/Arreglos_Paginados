@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <chrono>
 #include "PagedArray.hpp"
 
 using namespace std;
@@ -22,18 +23,26 @@ bool ArchivoExiste(string PathOriginal) {
 	return archivo.good();
 }
 
-void insertionSort(PagedArray& arr, int n)
-{
-	for (int i = 1; i < n; ++i) {
-		int key = arr[i];
-		int j = i - 1;
-		while (j >= 0 && arr[j] > key) {
-			arr[j + 1] = arr[j];
-			j = j - 1;
+void GenerarArchivoLegible(string PathBinario, string PathLegible) {
+	//Se abre el archivo binario ordenado anteriormente y se crea uno nuevo legible donde se escribiran los numeros en formato ASCII
+	ifstream binario(PathBinario, ios::binary);
+	ofstream legible(PathLegible);
+	int numero;
+	//Se recorre el archivo binario en saltos de 4 Bytes para leer cada numero 
+	for (int i = 0; binario.read((char*)&numero, sizeof(int)); i++) {
+		//Si es el primer numero leido, no se escribe la coma para que se empieze siempre por el primer int
+		if (i > 0) {
+			//Se escribe la coma espaciadora
+			legible << ",";
 		}
-		arr[j + 1] = key;
+		//Se escribe el numero en formato ASCII al archivo legible
+		legible << numero;
 	}
+	//Se cierran ambos archivos
+	binario.close();
+	legible.close();
 }
+//Algoritmos de ordenamiento
 
 void shellSort(PagedArray& arr, int n) {
 	for (int interval = n / 2; interval > 0; interval /= 2) {
@@ -126,28 +135,84 @@ void heapSort(PagedArray& arr, int n) {
 	}
 }
 
-int partition(PagedArray& arr, int low, int high) {
-	int pivot = arr[high]; 
-	int i = (low - 1);  
-	for (int j = low; j <= high - 1; j++) {
-		if (arr[j] < pivot) {
+int partition(PagedArray& arr, int first, int last)
+{
+	int pivot = arr[last];
+	int i = first;
+	for (int j = first; j < last; j++) {
+		if (arr[j] <= pivot) {
+			swap(arr[i], arr[j]);
 			i++;
-			std::swap(arr[i], arr[j]);
 		}
 	}
-	std::swap(arr[i + 1], arr[high]);
-	return (i + 1);
+	swap(arr[i], arr[last]);
+	return (i);
 }
 
-void quickSort(PagedArray& arr, int low, int high) {
-	if (low < high) {
-		int pi = partition(arr, low, high);
-		quickSort(arr, low, pi - 1);
-		quickSort(arr, pi + 1, high);
+void quickSort(PagedArray& arr, int first, int last)
+{
+	int* stack = new int[last - first + 1];
+	int top = -1;
+	stack[++top] = first;
+	stack[++top] = last;
+	while (top >= 0) {
+		last = stack[top--];
+		first = stack[top--];
+		int pivot_pos = partition(arr, first, last);
+		if (pivot_pos - 1 > first) {
+			stack[++top] = first;
+			stack[++top] = pivot_pos - 1;
+		}
+		if (pivot_pos + 1 < last) {
+			stack[++top] = pivot_pos + 1;
+			stack[++top] = last;
+		}
 	}
+	delete[] stack;
 }
 
+int getMax(int array[], int n) {
+	int max = array[0];
+	for (int i = 1; i < n; i++)
+		if (array[i] > max)
+			max = array[i];
+	return max;
+}
 
+void countingSort(PagedArray& array, int size, int place) {
+	const int max = 10;
+	int* output = new int[size];
+	int count[max];
+
+	for (int i = 0; i < max; ++i)
+		count[i] = 0;
+
+	for (int i = 0; i < size; i++)
+		count[(array[i] / place) % 10]++;
+
+	for (int i = 1; i < max; i++)
+		count[i] += count[i - 1];
+
+	for (int i = size - 1; i >= 0; i--) {
+		output[count[(array[i] / place) % 10] - 1] = array[i];
+		count[(array[i] / place) % 10]--;
+	}
+
+	for (int i = 0; i < size; i++)
+		array[i] = output[i];
+
+	delete[] output;
+}
+
+void radixSort(PagedArray& array, int size) {
+	int max = array[0];
+	for (int i = 1; i < size; i++)
+		if (array[i] > max)
+			max = array[i];
+
+	for (int place = 1; max / place > 0; place *= 10)
+		countingSort(array, size, place);
+}
 
 int main(int argc, char* argv[]) {
 	//Se definen las validaciones de la linea de comandos
@@ -189,33 +254,63 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	CopiarArchivo(PathOriginal, PathSalida);
-	//Se crea el objeto tipo PagedArray
-	PagedArray PagedArr(PathSalida, TamanhoPagina, PaginasEnRam);
-	//Se ejecuta un algoritmo de ordenamiento segun el que se elija en la linea de comandos
-	if (string(argv[6]) == "IS") {
-		insertionSort(PagedArr, PagedArr.tamanhoArchivo()-1);
 
-	}
-	else if (string(argv[6]) == "SS") {
-		shellSort(PagedArr, PagedArr.tamanhoArchivo()-1);
+	int PageHits = 0;
+	int PageFaults = 0;
+	chrono::duration<double> duracion; 
+	chrono::steady_clock::time_point inicio, fin;
 
-	}
-	else if (string(argv[6]) == "MS") {
-		mergeSort(PagedArr, PagedArr.tamanhoArchivo()-1);
+	{
+		//Se crea el objeto tipo PagedArray
+		PagedArray PagedArr(PathSalida, TamanhoPagina, PaginasEnRam);
+		//Se ejecuta un algoritmo de ordenamiento segun el que se elija en la linea de comandos
+		if (string(argv[6]) == "RS") {
+			inicio = chrono::high_resolution_clock::now();
+			radixSort(PagedArr, PagedArr.tamanhoArchivo());
+			fin = chrono::high_resolution_clock::now();
 
-	}
-	else if (string(argv[6]) == "HS") {
-		heapSort(PagedArr, PagedArr.tamanhoArchivo()-1);
+		}
+		else if (string(argv[6]) == "SS") {
+			inicio = chrono::high_resolution_clock::now();
+			shellSort(PagedArr, PagedArr.tamanhoArchivo());
+			fin = chrono::high_resolution_clock::now();
 
-	}
-	else if (string(argv[6]) == "QS") {
-		quickSort(PagedArr,0,PagedArr.tamanhoArchivo()-1);
+		}
+		else if (string(argv[6]) == "MS") {
+			inicio = chrono::high_resolution_clock::now();
+			mergeSort(PagedArr, PagedArr.tamanhoArchivo());
+			fin = chrono::high_resolution_clock::now();
 
+		}
+		else if (string(argv[6]) == "HS") {
+			inicio = chrono::high_resolution_clock::now();
+			heapSort(PagedArr, PagedArr.tamanhoArchivo());
+			fin = chrono::high_resolution_clock::now();
+
+		}
+		else if (string(argv[6]) == "QS") {
+			inicio = chrono::high_resolution_clock::now();
+			quickSort(PagedArr, 0, PagedArr.tamanhoArchivo() - 1);
+			fin = chrono::high_resolution_clock::now();
+
+		}
+		else {
+			cout << "Parametro de Algoritmod e ordenameinto incorrecto";
+			cout << "Opciones validas: 'IS':InsertionSort 'SS': ShellSort 'MS':MergeSort 'HS':HeapSort y 'QS':QuickSort";
+			return 1;
+		}
+		//Se obtienen los datos importantes para el mensaje de resultados
+		PageHits = PagedArr.obtenerPageHits();
+		PageFaults = PagedArr.obtenerPageFaults();
+		duracion = fin - inicio;
 	}
-	else {
-		cout << "Parametro de Algoritmod e ordenameinto incorrecto";
-		cout << "Opciones validas: 'IS':InsertionSort 'SS': ShellSort 'MS':MergeSort 'HS':HeapSort y 'QS':QuickSort";
-	}
+	cout << "Resultados:" << endl;
+	cout << "Algoritmo:    " << AlgoritmoOrdenamiento << endl;
+	cout << "Tiempo:       " << duracion.count() << " segundos" << endl;
+	cout << "Page Hits:    " << PageHits << endl;
+	cout << "Page Faults:  " << PageFaults << endl;
+
+	GenerarArchivoLegible(PathSalida, PathSalida);
 
 	return 0;
 }
