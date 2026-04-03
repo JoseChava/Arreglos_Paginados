@@ -38,4 +38,6 @@ public:
 
 	long long tamanhoArchivo();
 	void cargarPagina(int numeroPagina);
+	int LRU();
+	void cargarDesdeDisco(int numeroPagina, int slot);
 };

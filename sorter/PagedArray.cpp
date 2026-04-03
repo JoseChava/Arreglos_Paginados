@@ -78,44 +78,46 @@ int& PagedArray::operator[](int indice) {
 	reloj++;
 	return paginas[indiceRam].informacion[desfase];
 }
-//Se encarga de cargar la pagina solicitada del archivo, ademas, guarda los cambios de una pagina marcada como modificada si esta es intercambiada por la solicitada
+// Carga una pagina del disco a RAM reemplazando la menos usada si no hay espacio disponible
 void PagedArray::cargarPagina(int numeroPagina) {
-	//Se busca si hay espacios marcados como vacios en el array de paginas, si hay se copia la informaicon del archivo a dicha pagina
+	// Buscar si hay un slot vacio disponible en RAM
 	for (int i = 0; i < paginasEnRam; i++) {
 		if (paginas[i].numeroPagina == -1) {
-			paginas[i].numeroPagina = numeroPagina;
-			tablaIndices[numeroPagina] = i;
-			paginas[i].modificado = false;
-			paginas[i].contador = reloj;
-			reloj++;
-			archivo.seekg(numeroPagina * tamanhoPagina * sizeof(int), ios::beg);
-			archivo.read((char*)paginas[i].informacion, tamanhoPagina * sizeof(int));
+			cargarDesdeDisco(numeroPagina, i);
 			return;
 		}
 	}
-	//Si no hay espacios vacios se usa LRU para intercambiar la pagina menos usada por la pagina solicitada
-	int minContador = paginas[0].contador;
-	int pagACambiar = 0;
-	for (int i = 0; i < paginasEnRam; i++) {
-		//Se selecciona la pagina con el contador mas bajo (LRU)
-		if (paginas[i].contador < minContador) {
-			minContador = paginas[i].contador;
-			pagACambiar = i;
-		}
-	}
-	//Si la pagina esta marcada como modificada, se guardan sus cambios en el archivo
+	// Si no hay espacio se us LRU para seleccionar la pagina a reemplazar
+	int pagACambiar = LRU();
+	// Si la pagina a reemplazar fue modificada se guardan los cambios al disco antes de reemplazarla
 	if (paginas[pagACambiar].modificado == true) {
 		archivo.seekp(paginas[pagACambiar].numeroPagina * tamanhoPagina * sizeof(int), ios::beg);
 		archivo.write((char*)paginas[pagACambiar].informacion, tamanhoPagina * sizeof(int));
 	}
 	tablaIndices[paginas[pagACambiar].numeroPagina] = -1;
-	//Se copian los datos necesarios a la nueva pagina
-	archivo.seekg(numeroPagina * tamanhoPagina * sizeof(int), ios::beg);
-	archivo.read((char*)paginas[pagACambiar].informacion, tamanhoPagina * sizeof(int));
-	//Se asignan los datos predeterminados a la nueva pagina
-	paginas[pagACambiar].numeroPagina = numeroPagina;
-	tablaIndices[numeroPagina] = pagACambiar;
-	paginas[pagACambiar].contador = reloj;
-	reloj++;
-	paginas[pagACambiar].modificado = false;
+	cargarDesdeDisco(numeroPagina, pagACambiar);
 }
+// Selecciona la pagina menos recientemente usada (LRU) para ser reemplazada
+int PagedArray::LRU() {
+	int minContador = paginas[0].contador;
+	int pagACambiar = 0;
+	for (int i = 0; i < paginasEnRam; i++) {
+		if (paginas[i].contador < minContador) {
+			minContador = paginas[i].contador;
+			pagACambiar = i;
+		}
+	}
+	return pagACambiar;
+}
+
+// Se carga una pagina del disco a un slot especifico de la RAM y actualizala tabla de indices
+void PagedArray::cargarDesdeDisco(int numeroPagina, int slot) {
+	archivo.seekg(numeroPagina * tamanhoPagina * sizeof(int), ios::beg);
+	archivo.read((char*)paginas[slot].informacion, tamanhoPagina * sizeof(int));
+	paginas[slot].numeroPagina = numeroPagina;
+	tablaIndices[numeroPagina] = slot;
+	paginas[slot].modificado = false;
+	paginas[slot].contador = reloj;
+	reloj++;
+}
+

@@ -11,13 +11,19 @@ void GenerarArchivo(string Path, long long PesoBytes) {
 	fstream archivo(Path, ios::out | ios::binary);
 	if (!archivo.is_open()) {
 		cout << "Error al abrir archivo";
+		return;
 	}
+	//Buffer de 1MB para mejorar la eficiencia de la creacion del archivo
+	const int bufferTamanho = 1024 * 1024;
+	char* buffer = new char[bufferTamanho];
+	archivo.rdbuf()->pubsetbuf(buffer, bufferTamanho);
 	srand(time(0)); //Crea una semilla para generar numeros aleatorios
 	for (long long i = 0; i < PesoBytes / sizeof(int); i++) {
 		int numero = rand();
 		archivo.write((char*)&numero, sizeof(int)); //Funcion de escritura de los numeros
 	}
 	archivo.close();
+	delete[] buffer;
 }
 //Validacion de parametros de entrada de linea de comandos
 int main(int argc,char* argv[]) {

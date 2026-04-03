@@ -10,40 +10,50 @@ using namespace std;
 void CopiarArchivo(string PathOriginal, string PathSalida) {
 	ifstream archivoOriginal(PathOriginal, ios::binary);
 	ofstream archivoSalida(PathSalida, ios::binary);
+	//Buffer de 1MB para mejorar eficiencia en el copiado del archivo binario
+	const int bufferTamanho = 1024 * 1024;
+	char* bufferLectura = new char[bufferTamanho];
+	char* bufferEscritura = new char[bufferTamanho];
+	archivoOriginal.rdbuf()->pubsetbuf(bufferLectura, bufferTamanho);
+	archivoSalida.rdbuf()->pubsetbuf(bufferEscritura, bufferTamanho);
 	int numero;
 	while (archivoOriginal.read((char*)&numero, sizeof(int))) { //El ciclo para una vez que NO se pueda leer otros 4 bytes (un int)
 		archivoSalida.write((char*)&numero, sizeof(int));
 	}
 	archivoOriginal.close();
 	archivoSalida.close();
+	delete[] bufferLectura;
+	delete[] bufferEscritura;
 }
 
 bool ArchivoExiste(string PathOriginal) {
 	ifstream archivo(PathOriginal);
 	return archivo.good();
 }
-
+//Generacion del archivo legible
 void GenerarArchivoLegible(string PathBinario, string PathLegible) {
+	//Se abre el binario desde el cual se copia al legible
 	ifstream binario(PathBinario, ios::binary);
 	ofstream legible(PathLegible);
-
-	const int TAM_BUFFER = 1024 * 1024; 
-	char* buffer = new char[TAM_BUFFER];
-	legible.rdbuf()->pubsetbuf(buffer, TAM_BUFFER); 
-
+	//Se crea un buffer de 1MB para mejorar la eficiencia del copiado a formato legible
+	const int bufferTamanho = 1024 * 1024; 
+	char* buffer = new char[bufferTamanho];
+	//Se acumulan los numeros en el buffer para evitar hacer una escritura por cada numero 
+	legible.rdbuf()->pubsetbuf(buffer, bufferTamanho); 
 	int numero;
 	bool primero = true;
+	//Se lee el archivo y se copian los numeros separados por comas
 	while (binario.read((char*)&numero, sizeof(int))) {
 		if (!primero) legible << ',';
 		legible << numero;
 		primero = false;
 	}
-
+	//Se cierran ambos archivos al finalizar y se borra el buffer
 	legible.close();
 	binario.close();
 	delete[] buffer;
 }
-
+//Algoritmos de ordenamiento 
 int getNextGap(int gap)
 {
 	gap = (gap * 10) / 13;
