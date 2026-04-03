@@ -256,17 +256,20 @@ int main(int argc, char* argv[]) {
 		cout << "Parametro -pageCount incorrecto";
 		return 1;
 	}
+	cout << "Copiando archivo..." << endl;
 	CopiarArchivo(PathOriginal, PathSalida);
+	cout << "Archivo copiado exitosamente." << endl;
 
 	long long PageHits = 0;
 	long  long PageFaults = 0;
 	chrono::duration<double> duracion; 
-	chrono::steady_clock::time_point inicio, fin;
+	chrono::high_resolution_clock::time_point inicio, fin;
 
 	{
 		//Se crea el objeto tipo PagedArray
 		PagedArray PagedArr(PathSalida, TamanhoPagina, PaginasEnRam);
 		//Se ejecuta un algoritmo de ordenamiento segun el que se elija en la linea de comandos
+		cout << "Ordenando archivo..." << endl;
 		if (string(argv[6]) == "RS") {
 			inicio = chrono::high_resolution_clock::now();
 			radixSort(PagedArr, PagedArr.tamanhoArchivo());
@@ -307,17 +310,25 @@ int main(int argc, char* argv[]) {
 		PageFaults = PagedArr.obtenerPageFaults();
 		duracion = fin - inicio;
 	}
-	cout << "Resultados:" << endl;
-	cout << "Algoritmo:    " << AlgoritmoOrdenamiento << endl;
-	cout << "Tiempo:       " << duracion.count() << " segundos" << endl;
-	cout << "Page Hits:    " << PageHits << endl;
-	cout << "Page Faults:  " << PageFaults << endl;
+	string nombreAlgoritmo;
+	if (AlgoritmoOrdenamiento == "RS") nombreAlgoritmo = "Radix Sort";
+	else if (AlgoritmoOrdenamiento == "QS") nombreAlgoritmo = "Quick Sort";
+	else if (AlgoritmoOrdenamiento == "MS") nombreAlgoritmo = "Merge Sort";
+	else if (AlgoritmoOrdenamiento == "HS") nombreAlgoritmo = "Heap Sort";
+	else if (AlgoritmoOrdenamiento == "CS") nombreAlgoritmo = "Comb Sort";
 
-	auto inicioLegible = chrono::high_resolution_clock::now();
+	cout << "Archivo ordenado exitosamente." << endl;
+	cout << "========= Resultados =========" << endl;
+	cout << "Algoritmo:          " << nombreAlgoritmo << endl;
+	cout << "Tiempo de ordenado: " << duracion.count() << " segundos" << endl;
+	cout << "Page Hits:          " << PageHits << endl;
+	cout << "Page Faults:        " << PageFaults << endl;
+	cout << "==============================" << endl;
+
+	cout << "Creando copia legible..." << endl;
 	GenerarArchivoLegible(PathSalida, PathSalida + ".txt");
-	auto finLegible = chrono::high_resolution_clock::now();
-	chrono::duration<double> duracionLegible = finLegible - inicioLegible;
-	cout << "Tiempo legible: " << duracionLegible.count() << " segundos" << endl;
+	cout << "Copia legible creada exitosamente." << endl;
+	
 
 	return 0;
 }

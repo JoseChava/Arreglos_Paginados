@@ -13,6 +13,7 @@ void GenerarArchivo(string Path, long long PesoBytes) {
 		cout << "Error al abrir archivo";
 		return;
 	}
+	cout << "Creando archivo..." << endl;
 	//Buffer de 1MB para mejorar la eficiencia de la creacion del archivo
 	const int bufferTamanho = 1024 * 1024;
 	char* buffer = new char[bufferTamanho];
@@ -24,6 +25,7 @@ void GenerarArchivo(string Path, long long PesoBytes) {
 	}
 	archivo.close();
 	delete[] buffer;
+	cout << "Archivo creado exitosamente." << endl;
 }
 //Validacion de parametros de entrada de linea de comandos
 int main(int argc,char* argv[]) {
