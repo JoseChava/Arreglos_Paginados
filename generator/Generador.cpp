@@ -28,10 +28,6 @@ int main(int argc,char* argv[]) {
 	long long PesoBytes = 0;
 	string Tamanho= argv[2];
 	string Path = argv[4];
-	if (string(argv[0]) != "generator") {
-		cout << "Nombre del proyecto incorrecto";
-		return 1;
-	}
 	if (string(argv[1]) != "-size") {
 		cout << "Parametro -size incorrecto";
 		return 1;
@@ -40,7 +36,22 @@ int main(int argc,char* argv[]) {
 		cout << "Parametro -output incorrecto";
 		return 1;
 	}
-	if (Tamanho== "SMALL") {
+	if (Tamanho == "P1") {
+		PesoBytes = 8LL * pow(1024, 2);
+	}
+	else if (Tamanho == "P2") {
+		PesoBytes = 16LL * pow(1024, 2);
+	}
+	else if (Tamanho == "P3") {
+		PesoBytes = 32LL * pow(1024, 2);
+	}
+	else if (Tamanho == "P4") {
+		PesoBytes = 64LL * pow(1024, 2);
+	}
+	else if (Tamanho == "P5") {
+		PesoBytes = 128LL * pow(1024, 2);
+	}
+	else if (Tamanho== "SMALL") {
 		PesoBytes= 256LL*pow(1024,2);
 	}
 	else if (Tamanho=="MEDIUM") {
