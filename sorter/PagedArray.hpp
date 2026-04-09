@@ -1,3 +1,5 @@
+#ifndef PAGEDARRAY_HPP
+#define PAGEDARRAY_HPP
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -41,3 +43,4 @@ public:
 	int LRU();
 	void cargarDesdeDisco(int numeroPagina, int slot);
 };
+#endif

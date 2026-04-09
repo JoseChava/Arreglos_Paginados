@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include "PagedArray.hpp"
+#include "../algoritmos_ordenamiento/Algoritmos.hpp"
 
 using namespace std;
 
@@ -53,173 +54,6 @@ void GenerarArchivoLegible(string PathBinario, string PathLegible) {
 	binario.close();
 	delete[] buffer;
 }
-//Algoritmos de ordenamiento 
-int getNextGap(int gap)
-{
-	gap = (gap * 10) / 13;
-
-	if (gap < 1)
-		return 1;
-	return gap;
-}
-void Swap(int& a, int& b) {
-	int temp = a;
-	a=b;
-	b=temp;
-}
-void combSort(PagedArray& a, int n)
-{
-	int gap = n;
-	bool swapped = true;
-	while (gap != 1 || swapped == true)
-	{
-		gap = getNextGap(gap);
-		swapped = false;
-		for (int i = 0; i < n - gap; i++)
-		{
-			if (a[i] > a[i + gap])
-			{
-				Swap(a[i], a[i + gap]);
-				swapped = true;
-			}
-		}
-	}
-}
-
-void merge(PagedArray& arr, PagedArray& aux, int left, int mid, int right) {
-	// Solo copiar mitad izquierda a aux
-	for (int i = left; i <= mid; i++)
-		aux[i] = arr[i];
-
-	int i = left, j = mid + 1, k = left;
-	while (i <= mid && j <= right) {
-		if (aux[i] <= arr[j])
-			arr[k++] = aux[i++];
-		else
-			arr[k++] = arr[j++];
-	}
-	// Copiar lo que quede de la izquierda
-	while (i <= mid)
-		arr[k++] = aux[i++];
-	// La derecha ya esta en su lugar, no hay que copiar
-}
-
-int Min(int a, int b) {
-	if (a < b) {
-		return a;
-	}
-	return b;
-}
-
-void mergeSort(PagedArray& arr, int n, int tamanhoPagina, int paginasEnRam) {
-	// Crear archivo auxiliar una sola vez
-	string pathTemp = "merge_temp.bin";
-	ofstream temp(pathTemp, ios::binary);
-	int cero = 0;
-	for (long long i = 0; i < n; i++)
-		temp.write((char*)&cero, sizeof(int));
-	temp.close();
-
-	PagedArray aux(pathTemp, tamanhoPagina, paginasEnRam);
-
-	for (int currSize = 1; currSize <= n - 1; currSize = 2 * currSize) {
-		for (int leftStart = 0; leftStart < n - 1; leftStart += 2 * currSize) {
-			int mid = Min(leftStart + currSize - 1, n - 1);
-			int rightEnd = Min(leftStart + 2 * currSize - 1, n - 1);
-			merge(arr, aux, leftStart, mid, rightEnd);
-		}
-	}
-
-	remove(pathTemp.c_str());
-}
-
-void heapify(PagedArray& arr, int n, int i) {
-	int largest = i;
-	int left = 2 * i + 1;
-	int right = 2 * i + 2;
-
-	if (left < n && arr[left] > arr[largest])
-		largest = left;
-
-	if (right < n && arr[right] > arr[largest])
-		largest = right;
-	if (largest != i) {
-		Swap(arr[i], arr[largest]);
-		heapify(arr, n, largest);
-	}
-}
-void heapSort(PagedArray& arr, int n) {
-	for (int i = n / 2 - 1; i >= 0; i--)
-		heapify(arr, n, i);
-	for (int i = n - 1; i >= 0; i--) {
-		Swap(arr[0], arr[i]);
-		heapify(arr, i, 0);
-	}
-}
-
-int partition(PagedArray& arr, int low, int high) {
-	int pivot = arr[low];
-	int i = low - 1, j = high + 1;
-	while (true) {
-		do {
-			i++;
-		} while (arr[i] < pivot);
-		do {
-			j--;
-		} while (arr[j] > pivot);
-		if (i >= j)
-			return j;
-		Swap(arr[i], arr[j]);
-	}
-}
-
-void quickSort(PagedArray& arr, int low, int high) {
-	if (low < high) {
-
-		int pi = partition(arr, low, high);
-		quickSort(arr, low, pi);
-		quickSort(arr, pi + 1, high);
-	}
-} 
-
-void countingSort(PagedArray& array, PagedArray& output, int size, int shift) {
-	const int BASE = 256;
-	int count[BASE] = { 0 };
-
-	for (int i = 0; i < size; i++)
-		count[((unsigned int)(int)array[i] >> shift) & 0xFF]++;
-
-	int acumulado = 0;
-	for (int i = 0; i < BASE; i++) {
-		int c = count[i];
-		count[i] = acumulado;
-		acumulado += c;
-	}
-	for (int i = 0; i < size; i++) {
-		int byte = ((unsigned int)(int)array[i] >> shift) & 0xFF;
-		output[count[byte]++] = array[i];
-	}
-
-	for (int i = 0; i < size; i++)
-		array[i] = output[i];
-}
-
-void radixSort(PagedArray& array, int size, int tamanhoPagina, int paginasEnRam) {
-	// Se crea archivo temporal para usar pagedArray
-	string pathTemp = "output_temp.bin";
-	ofstream temp(pathTemp, ios::binary);
-	int cero = 0;
-	for (int i = 0; i < size; i++)
-		temp.write((char*)&cero, sizeof(int));
-	temp.close();
-
-	PagedArray output(pathTemp, tamanhoPagina, paginasEnRam);
-
-	for (int shift = 0; shift < 32; shift += 8)
-		countingSort(array, output, size, shift);
-
-	remove(pathTemp.c_str());
-}
 int main(int argc, char* argv[]) {
 	if (argc < 11) {
 		cout << "Cantidad de parametros incorrectos";
@@ -228,8 +62,9 @@ int main(int argc, char* argv[]) {
 	string PathOriginal = argv[2];
 	string PathSalida = argv[4];
 	string AlgoritmoOrdenamiento = argv[6];
-	int  TamanhoPagina = stoi(argv[8]);
+	int TamanhoPagina = stoi(argv[8]);
 	int PaginasEnRam = stoi(argv[10]);
+
 	if (string(argv[1]) != "-input") {
 		cout << "Parametro -input incorrecto";
 		return 1;
@@ -254,6 +89,26 @@ int main(int argc, char* argv[]) {
 		cout << "Parametro -pageCount incorrecto";
 		return 1;
 	}
+
+	// Se restringen las entradas de tamaño para ciertos algoritmos
+	{
+		ifstream archivoValidacion(PathOriginal, ios::binary | ios::ate);
+		long long tamanoMB = archivoValidacion.tellg() / (1024 * 1024);
+
+		if (AlgoritmoOrdenamiento=="HS" && tamanoMB > 64) {
+			cout << "Heap Sort no es viable para archivos mayores a 64MB (P4)" << endl;
+			return 1;
+		}
+		if (AlgoritmoOrdenamiento=="CS" && tamanoMB > 128) {
+			cout << "Comb Sort no es viable para archivos mayores a 128MB (P5)" << endl;
+			return 1;
+		}
+		if (AlgoritmoOrdenamiento=="MS" && tamanoMB > 512) {
+			cout << "Merge Sort no es viable para archivos mayores a 512MB (MEDIUM)" << endl;
+			return 1;
+		}
+	}
+
 	cout << "Copiando archivo..." << endl;
 	CopiarArchivo(PathOriginal, PathSalida);
 	cout << "Archivo copiado exitosamente." << endl;
@@ -266,30 +121,42 @@ int main(int argc, char* argv[]) {
 
 	{
 		PagedArray PagedArr(PathSalida, TamanhoPagina, PaginasEnRam);
+		long long TamanhoArchivo = PagedArr.tamanhoArchivo();
 		cout << "Ordenando archivo..." << endl;
 
-		if (string(argv[6]) == "RS") {
-			pathTemp = PathSalida + "_temp.bin";
-			inicio = chrono::high_resolution_clock::now();
-			radixSort(PagedArr, PagedArr.tamanhoArchivo(), TamanhoPagina, PaginasEnRam);
-			fin = chrono::high_resolution_clock::now();
+		if (string(argv[6])=="RS") {
+			string pathTemp=PathSalida + "_temp.bin";
+			ofstream temp(pathTemp, ios::binary);
+			temp.seekp((long long)TamanhoArchivo * sizeof(int) - 1);
+			temp.write("", 1);
+			temp.close();
+			PagedArray outputRS(pathTemp,TamanhoPagina,PaginasEnRam);
+			inicio=chrono::high_resolution_clock::now();
+			radixSort(PagedArr, outputRS, TamanhoArchivo);
+			fin=chrono::high_resolution_clock::now();
 		}
-		else if (string(argv[6]) == "CS") {
+		else if (string(argv[6])=="CS") {
 			inicio = chrono::high_resolution_clock::now();
 			combSort(PagedArr, PagedArr.tamanhoArchivo());
 			fin = chrono::high_resolution_clock::now();
 		}
-		else if (string(argv[6]) == "MS") {
-			inicio = chrono::high_resolution_clock::now();
-			mergeSort(PagedArr, PagedArr.tamanhoArchivo(), TamanhoPagina, PaginasEnRam);
-			fin = chrono::high_resolution_clock::now();
+		else if (string(argv[6])=="MS") {
+			pathTemp=PathSalida+"_temp.bin";
+			ofstream temp(pathTemp, ios::binary);
+			temp.seekp((long long)TamanhoArchivo * sizeof(int) - 1);
+			temp.write("", 1);
+			temp.close();
+			PagedArray auxMS(pathTemp,TamanhoPagina,PaginasEnRam);
+			inicio=chrono::high_resolution_clock::now();
+			mergeSort(PagedArr,auxMS,TamanhoArchivo);
+			fin =chrono::high_resolution_clock::now();
 		}
-		else if (string(argv[6]) == "HS") {
+		else if (string(argv[6])=="HS") {
 			inicio = chrono::high_resolution_clock::now();
 			heapSort(PagedArr, PagedArr.tamanhoArchivo());
 			fin = chrono::high_resolution_clock::now();
 		}
-		else if (string(argv[6]) == "QS") {
+		else if (string(argv[6])=="QS") {
 			inicio = chrono::high_resolution_clock::now();
 			quickSort(PagedArr, 0, PagedArr.tamanhoArchivo() - 1);
 			fin = chrono::high_resolution_clock::now();

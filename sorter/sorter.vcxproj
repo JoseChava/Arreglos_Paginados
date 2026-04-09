@@ -129,6 +129,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\algoritmos_ordenamiento\Comb_Sort.cpp" />
+    <ClCompile Include="..\algoritmos_ordenamiento\Heap_Sort.cpp" />
+    <ClCompile Include="..\algoritmos_ordenamiento\Merge_Sort.cpp" />
+    <ClCompile Include="..\algoritmos_ordenamiento\Quick_Sort.cpp" />
+    <ClCompile Include="..\algoritmos_ordenamiento\Radix_Sort.cpp" />
     <ClCompile Include="PagedArray.cpp" />
     <ClCompile Include="sorter.cpp" />
   </ItemGroup>
