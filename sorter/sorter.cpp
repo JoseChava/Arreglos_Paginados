@@ -62,7 +62,11 @@ int getNextGap(int gap)
 		return 1;
 	return gap;
 }
-
+void Swap(int& a, int& b) {
+	int temp = a;
+	a=b;
+	b=temp;
+}
 void combSort(PagedArray& a, int n)
 {
 	int gap = n;
@@ -75,65 +79,58 @@ void combSort(PagedArray& a, int n)
 		{
 			if (a[i] > a[i + gap])
 			{
-				swap(a[i], a[i + gap]);
+				Swap(a[i], a[i + gap]);
 				swapped = true;
 			}
 		}
 	}
 }
 
-void merge(PagedArray& arr, int left, int mid, int right) {
-	int n1 = mid - left + 1;
-	int n2 = right - mid;
+void merge(PagedArray& arr, PagedArray& aux, int left, int mid, int right) {
+	// Solo copiar mitad izquierda a aux
+	for (int i = left; i <= mid; i++)
+		aux[i] = arr[i];
 
-	int* arr1 = new int[n1];
-	int* arr2 = new int[n2];
-
-	for (int i = 0; i < n1; i++)
-		arr1[i] = arr[left + i];
-	for (int j = 0; j < n2; j++)
-		arr2[j] = arr[mid + 1 + j];
-
-	int i = 0;
-	int j = 0;
-	int k = left;
-
-	while (i < n1 && j < n2) {
-		if (arr1[i] <= arr2[j]) {
-			arr[k] = arr1[i];
-			i++;
-		}
-		else {
-			arr[k] = arr2[j];
-			j++;
-		}
-		k++;
+	int i = left, j = mid + 1, k = left;
+	while (i <= mid && j <= right) {
+		if (aux[i] <= arr[j])
+			arr[k++] = aux[i++];
+		else
+			arr[k++] = arr[j++];
 	}
-
-	while (i < n1) {
-		arr[k] = arr1[i];
-		i++;
-		k++;
-	}
-
-	while (j < n2) {
-		arr[k] = arr2[j];
-		j++;
-		k++;
-	}
-
-	delete[] arr1;
-	delete[] arr2;
+	// Copiar lo que quede de la izquierda
+	while (i <= mid)
+		arr[k++] = aux[i++];
+	// La derecha ya esta en su lugar, no hay que copiar
 }
 
-void mergeSort(PagedArray& arr, int n) {
+int Min(int a, int b) {
+	if (a < b) {
+		return a;
+	}
+	return b;
+}
+
+void mergeSort(PagedArray& arr, int n, int tamanhoPagina, int paginasEnRam) {
+	// Crear archivo auxiliar una sola vez
+	string pathTemp = "merge_temp.bin";
+	ofstream temp(pathTemp, ios::binary);
+	int cero = 0;
+	for (long long i = 0; i < n; i++)
+		temp.write((char*)&cero, sizeof(int));
+	temp.close();
+
+	PagedArray aux(pathTemp, tamanhoPagina, paginasEnRam);
+
 	for (int currSize = 1; currSize <= n - 1; currSize = 2 * currSize) {
 		for (int leftStart = 0; leftStart < n - 1; leftStart += 2 * currSize) {
-			int mid = min(leftStart + currSize - 1, n - 1);
-			int rightEnd = min(leftStart + 2 * currSize - 1, n - 1);
-			merge(arr, leftStart, mid, rightEnd);
+			int mid = Min(leftStart + currSize - 1, n - 1);
+			int rightEnd = Min(leftStart + 2 * currSize - 1, n - 1);
+			merge(arr, aux, leftStart, mid, rightEnd);
 		}
 	}
+
+	remove(pathTemp.c_str());
 }
 
 void heapify(PagedArray& arr, int n, int i) {
@@ -147,7 +144,7 @@ void heapify(PagedArray& arr, int n, int i) {
 	if (right < n && arr[right] > arr[largest])
 		largest = right;
 	if (largest != i) {
-		swap(arr[i], arr[largest]);
+		Swap(arr[i], arr[largest]);
 		heapify(arr, n, largest);
 	}
 }
@@ -155,7 +152,7 @@ void heapSort(PagedArray& arr, int n) {
 	for (int i = n / 2 - 1; i >= 0; i--)
 		heapify(arr, n, i);
 	for (int i = n - 1; i >= 0; i--) {
-		swap(arr[0], arr[i]);
+		Swap(arr[0], arr[i]);
 		heapify(arr, i, 0);
 	}
 }
@@ -172,7 +169,7 @@ int partition(PagedArray& arr, int low, int high) {
 		} while (arr[j] > pivot);
 		if (i >= j)
 			return j;
-		swap(arr[i], arr[j]);
+		Swap(arr[i], arr[j]);
 	}
 }
 
@@ -185,51 +182,52 @@ void quickSort(PagedArray& arr, int low, int high) {
 	}
 } 
 
-void radixSort(PagedArray& array, int size) {
+void countingSort(PagedArray& array, PagedArray& output, int size, int shift) {
 	const int BASE = 256;
-	const int PASADAS = 4;
-	int* buffer = new int[size];
-	int* temp = new int[size];
+	int count[BASE] = { 0 };
+
 	for (int i = 0; i < size; i++)
-		buffer[i] = array[i];
-	for (int pasada = 0; pasada < PASADAS; pasada++) {
-		int conteo[BASE] = { 0 };
-		int desplazamiento = pasada * 8;
+		count[((unsigned int)(int)array[i] >> shift) & 0xFF]++;
 
-		for (int i = 0; i < size; i++)
-			conteo[((unsigned int)buffer[i] >> desplazamiento) & 0xFF]++;
-
-		int acumulado = 0;
-		for (int i = 0; i < BASE; i++) {
-			int c = conteo[i];
-			conteo[i] = acumulado;
-			acumulado += c;
-		}
-
-		for (int i = 0; i < size; i++) {
-			int indice = ((unsigned int)buffer[i] >> desplazamiento) & 0xFF;
-			temp[conteo[indice]++] = buffer[i];
-		}
-
-		int* aux = buffer;
-		buffer = temp;
-		temp = aux;
+	int acumulado = 0;
+	for (int i = 0; i < BASE; i++) {
+		int c = count[i];
+		count[i] = acumulado;
+		acumulado += c;
 	}
-	for (int i = 0; i < size; i++)
-		array[i] = buffer[i];
+	for (int i = 0; i < size; i++) {
+		int byte = ((unsigned int)(int)array[i] >> shift) & 0xFF;
+		output[count[byte]++] = array[i];
+	}
 
-	delete[] buffer;
-	delete[] temp;
+	for (int i = 0; i < size; i++)
+		array[i] = output[i];
+}
+
+void radixSort(PagedArray& array, int size, int tamanhoPagina, int paginasEnRam) {
+	// Se crea archivo temporal para usar pagedArray
+	string pathTemp = "output_temp.bin";
+	ofstream temp(pathTemp, ios::binary);
+	int cero = 0;
+	for (int i = 0; i < size; i++)
+		temp.write((char*)&cero, sizeof(int));
+	temp.close();
+
+	PagedArray output(pathTemp, tamanhoPagina, paginasEnRam);
+
+	for (int shift = 0; shift < 32; shift += 8)
+		countingSort(array, output, size, shift);
+
+	remove(pathTemp.c_str());
 }
 int main(int argc, char* argv[]) {
-	//Se definen las validaciones de la linea de comandos
 	if (argc < 11) {
 		cout << "Cantidad de parametros incorrectos";
 		return 1;
 	}
-	string PathOriginal= argv[2];
-	string PathSalida= argv[4];
-	string AlgoritmoOrdenamiento= argv[6];
+	string PathOriginal = argv[2];
+	string PathSalida = argv[4];
+	string AlgoritmoOrdenamiento = argv[6];
 	int  TamanhoPagina = stoi(argv[8]);
 	int PaginasEnRam = stoi(argv[10]);
 	if (string(argv[1]) != "-input") {
@@ -261,55 +259,55 @@ int main(int argc, char* argv[]) {
 	cout << "Archivo copiado exitosamente." << endl;
 
 	long long PageHits = 0;
-	long  long PageFaults = 0;
-	chrono::duration<double> duracion; 
+	long long PageFaults = 0;
+	chrono::duration<double> duracion;
 	chrono::high_resolution_clock::time_point inicio, fin;
+	string pathTemp = "";
 
 	{
-		//Se crea el objeto tipo PagedArray
 		PagedArray PagedArr(PathSalida, TamanhoPagina, PaginasEnRam);
-		//Se ejecuta un algoritmo de ordenamiento segun el que se elija en la linea de comandos
 		cout << "Ordenando archivo..." << endl;
-		if (string(argv[6]) == "RS") {
-			inicio = chrono::high_resolution_clock::now();
-			radixSort(PagedArr, PagedArr.tamanhoArchivo());
-			fin = chrono::high_resolution_clock::now();
 
+		if (string(argv[6]) == "RS") {
+			pathTemp = PathSalida + "_temp.bin";
+			inicio = chrono::high_resolution_clock::now();
+			radixSort(PagedArr, PagedArr.tamanhoArchivo(), TamanhoPagina, PaginasEnRam);
+			fin = chrono::high_resolution_clock::now();
 		}
 		else if (string(argv[6]) == "CS") {
 			inicio = chrono::high_resolution_clock::now();
 			combSort(PagedArr, PagedArr.tamanhoArchivo());
 			fin = chrono::high_resolution_clock::now();
-
 		}
 		else if (string(argv[6]) == "MS") {
 			inicio = chrono::high_resolution_clock::now();
-			mergeSort(PagedArr, PagedArr.tamanhoArchivo());
+			mergeSort(PagedArr, PagedArr.tamanhoArchivo(), TamanhoPagina, PaginasEnRam);
 			fin = chrono::high_resolution_clock::now();
-
 		}
 		else if (string(argv[6]) == "HS") {
 			inicio = chrono::high_resolution_clock::now();
 			heapSort(PagedArr, PagedArr.tamanhoArchivo());
 			fin = chrono::high_resolution_clock::now();
-
 		}
 		else if (string(argv[6]) == "QS") {
 			inicio = chrono::high_resolution_clock::now();
 			quickSort(PagedArr, 0, PagedArr.tamanhoArchivo() - 1);
 			fin = chrono::high_resolution_clock::now();
-
 		}
 		else {
-			cout << "Parametro de Algoritmo de ordenameinto incorrecto";
-			cout << "Opciones validas: 'IS':InsertionSort 'SS': ShellSort 'MS':MergeSort 'HS':HeapSort y 'QS':QuickSort";
+			cout << "Parametro de Algoritmo de ordenamiento incorrecto";
+			cout << "Opciones validas: RS, CS, MS, HS, QS";
 			return 1;
 		}
-		//Se obtienen los datos importantes para el mensaje de resultados
+
 		PageHits = PagedArr.obtenerPageHits();
 		PageFaults = PagedArr.obtenerPageFaults();
 		duracion = fin - inicio;
 	}
+
+	if (!pathTemp.empty())
+		remove(pathTemp.c_str());
+
 	string nombreAlgoritmo;
 	if (AlgoritmoOrdenamiento == "RS") nombreAlgoritmo = "Radix Sort";
 	else if (AlgoritmoOrdenamiento == "QS") nombreAlgoritmo = "Quick Sort";
@@ -328,9 +326,6 @@ int main(int argc, char* argv[]) {
 	cout << "Creando copia legible..." << endl;
 	GenerarArchivoLegible(PathSalida, PathSalida + ".txt");
 	cout << "Copia legible creada exitosamente." << endl;
-	
 
 	return 0;
 }
-
-
