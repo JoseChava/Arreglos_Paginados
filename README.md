@@ -92,11 +92,11 @@ En este caso para ejecutar el sorter se siguen los siguientes pasos:
 - Se escribe el nombre del archivo resultante ordenado, en este caso será ordenadoSMALL.bin (la extensión bin no es requerida)
 - Se escribe -alg para definir el algoritmo de ordenamiento
 - Se escribe una de las 5 opciones posibles de algoritmos (Se escriben con las letras clave, ejemplo: RS):
-1. Radix Sort -> RS (Recomendado para cualquiera de los tamaños de archivo y superiores a LARGE)
+1. Radix Sort -> RS (Recomendado para cualquiera de los tamaños de archivo y superiores a LARGE (1 GB))
 2. Quick Sort -> QS (Recomendado para cualquiera de los tamaños de archivo)
-4. Merge Sort -> MS (Recomendado para cualquiera de los tamaños de archivo)
-6. Comb Sort -> CS (Recomendado para archivos de tamaño SMALL o inferior)
-7. Heap Sort -> HS (Recomendado para archivos de tamaño SMALL o inferior)
+4. Merge Sort -> MS (Recomendado para archivos de tamaño SMALL (256MB) o inferior)
+6. Comb Sort -> CS (Recomendado para archivos de tamaño 128MB o inferior)
+7. Heap Sort -> HS (Recomendado para archivos de tamaño 64MB o inferior)
    
 Estos fueron listados del más rápido al más lento, dependiendo del tamaño de archivo elegido la elección de posibles algoritmos de ordenamiento se puede ver limitada por cuestiones de inviabilidad de algunos algoritmos según el tamaño del archivo.
 - Se escribe -pageSize indicando el tamaño en enteros (int) que tendrá cada una de las página de PagedArray
