@@ -43,7 +43,7 @@ Una vez hecho esto cierre el CMD y diríjase nuevamente a la raíz del repositor
  Una vez compilados y creados abos ejecutables se peude empezar a probar el programa utilizando CMD desde la carpeta de **pruebas** donde encontrará ambos archivos .exe necesarios para poder probar la generación y ordenamiento de archivos. 
 ## Con Visual Studio Community:
 ### Creacion de carpeta de pruebas y compilado de ejecutables
-En caso de contar con Visual Studio Community 2026 o 2022 se puede realizar la construcción de los archivos ejecutables directamente desde el programa sin necesidad de utilizar CMD. Para esto desde la carpeta raíz del repositorio haga doble click sobre el archivo con extensión **.slnx** y ábralo utilizando el Visual Studio Community 2026 o 2022 como se muestra:
+En caso de contar con Visual Studio Community 2026 se puede realizar la construcción de los archivos ejecutables directamente desde el programa sin necesidad de utilizar CMD. Para esto desde la carpeta raíz del repositorio haga doble click sobre el archivo con extensión **.slnx** y ábralo utilizando el Visual Studio Community 2026 como se muestra:
 
 <img width="2560" height="938" alt="image" src="https://github.com/user-attachments/assets/79483787-b9b2-4db1-b5c4-643c0e354b56" />
 
