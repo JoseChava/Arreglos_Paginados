@@ -108,6 +108,11 @@ int main(int argc, char* argv[]) {
 	int TamanhoPagina = stoi(argv[8]);
 	int PaginasEnRam = stoi(argv[10]);
 
+	if ((TamanhoPagina & (TamanhoPagina - 1)) != 0) {
+		cout << "pageSize debe ser potencia de 2" << endl;
+		return 1;
+	}
+
 	if (AlgoritmoOrdenamiento!="RS"&&AlgoritmoOrdenamiento!="QS"&&
 		AlgoritmoOrdenamiento!="MS"&&AlgoritmoOrdenamiento!="HS"&&
 		AlgoritmoOrdenamiento!="CS") {
