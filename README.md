@@ -35,7 +35,7 @@ El primer paso es desde la carpeta principal del repositorio escriba "cmd" en la
 
  <img width="2560" height="484" alt="image" src="https://github.com/user-attachments/assets/ae7aaba5-a2d6-46a3-8fe3-a4f6e665f5be" />
 
-Una vez hecho esto cierre el CMD y diríjase nuevamente a la raíz del repositorio y entre en la carpeta **sorter**, ejecute ahora en CMD dentro de la carpeta **sorter** el siguiente comando para compilar el programa de ordenado de los archivos: **g++ -O2 -o ..\pruebas\sorter sorter.cpp PagedArray.cpp** este se encarga de crear el ejecutable **sorter** compilando los archivos de sorter.cpp y PagedArray.cpp los cuales son necesarios para el funcionamiento del programa de ordenado.
+Una vez hecho esto cierre el CMD y diríjase nuevamente a la raíz del repositorio y entre en la carpeta **sorter**, ejecute ahora en CMD dentro de la carpeta **sorter** el siguiente comando para compilar el programa de ordenado de los archivos: **g++ -O2 -o ..\pruebas\sorter sorter.cpp PagedArray.cpp ..\algoritmos_ordenamiento\Comb_Sort.cpp ..\algoritmos_ordenamiento\Heap_Sort.cpp ..\algoritmos_ordenamiento\Merge_Sort.cpp ..\algoritmos_ordenamiento\Quick_Sort.cpp ..\algoritmos_ordenamiento\Radix_Sort.cpp** este se encarga de crear el ejecutable **sorter** compilando los archivos de sorter.cpp y PagedArray.cpp los cuales son necesarios para el funcionamiento del programa de ordenado.
 
  <img width="2560" height="566" alt="image" src="https://github.com/user-attachments/assets/14d953c7-03fa-47f8-9800-1361a8353a5b" />
 
