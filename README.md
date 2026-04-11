@@ -5,6 +5,7 @@
 - Compilador: g++ (MinGW) o Visual Studio Community 2026 (Importante que sea la versión 2026)
 
 ## Compilación de los ejecutables
+Primeramente, es importante indicar que de no usar la versión 2026 de Visual Studio, es probable que el archivo tenga problemas para poder ser compilado, por tanto, se recomeinda hacer uso de la versión 2026 de Visual Studio Community.
 El primer paso es clonar el repositorio desde la pestaña de Código como se muestra a continuación:
 
 <img width="1916" height="934" alt="image" src="https://github.com/user-attachments/assets/38cc032a-2dff-4254-9d0b-c663ea46e32f" />
