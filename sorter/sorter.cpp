@@ -62,15 +62,13 @@ int main(int argc, char* argv[]) {
 	string PathOriginal = argv[2];
 	string PathSalida = argv[4];
 	string AlgoritmoOrdenamiento = argv[6];
-	int TamanhoPagina = stoi(argv[8]);
-	int PaginasEnRam = stoi(argv[10]);
 
 	if (string(argv[1]) != "-input") {
 		cout << "Parametro -input incorrecto";
 		return 1;
 	}
 	if (!ArchivoExiste(PathOriginal)) {
-		cout << "No se encuentra el archivo";
+		cout << "No se encuentra el archivo: " << "'" << argv[2] << "'" << " Quiza no existe o se introdujo mal el nombre/path" << endl;
 		return 1;
 	}
 	if (string(argv[3]) != "-output") {
@@ -87,6 +85,33 @@ int main(int argc, char* argv[]) {
 	}
 	if (string(argv[9]) != "-pageCount") {
 		cout << "Parametro -pageCount incorrecto";
+		return 1;
+	}
+
+	string valorPageSize = string(argv[8]);
+	for (int i = 0; i < valorPageSize.length(); i++) {
+		char c = valorPageSize[i];
+		if (!isdigit(c)) {
+			cout << "pageSize debe ser un numero entero positivo" << endl;
+			return 1;
+		}
+	}
+	string valorPageCount = string(argv[10]);
+	for (int i = 0; i < valorPageCount.length(); i++) {
+		char c = valorPageCount[i];
+		if (!isdigit(c)) {
+			cout << "pageCount debe ser un numero entero positivo" << endl;
+			return 1;
+		}
+	}
+
+	int TamanhoPagina = stoi(argv[8]);
+	int PaginasEnRam = stoi(argv[10]);
+
+	if (AlgoritmoOrdenamiento!="RS"&&AlgoritmoOrdenamiento!="QS"&&
+		AlgoritmoOrdenamiento!="MS"&&AlgoritmoOrdenamiento!="HS"&&
+		AlgoritmoOrdenamiento!="CS") {
+		cout << "Algoritmo invalido. Opciones validas: RS, CS, MS, HS, QS" << endl;
 		return 1;
 	}
 
@@ -160,11 +185,6 @@ int main(int argc, char* argv[]) {
 			inicio = chrono::high_resolution_clock::now();
 			quickSort(PagedArr, 0, PagedArr.tamanhoArchivo() - 1);
 			fin = chrono::high_resolution_clock::now();
-		}
-		else {
-			cout << "Parametro de Algoritmo de ordenamiento incorrecto";
-			cout << "Opciones validas: RS, CS, MS, HS, QS";
-			return 1;
 		}
 
 		PageHits = PagedArr.obtenerPageHits();
