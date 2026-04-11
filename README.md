@@ -2,7 +2,7 @@
 
 ## Requisitos
 - Sistema operativo: Windows
-- Compilador: g++ (MinGW) o Visual Studio Community 2022-2026
+- Compilador: g++ (MinGW) o Visual Studio Community 2026 (Importante que sea la versión 2026)
 
 ## Compilación de los ejecutables
 El primer paso es clonar el repositorio desde la pestaña de Código como se muestra a continuación:
